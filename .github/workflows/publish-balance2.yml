@@ -17,6 +17,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Sync main
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
+
       - name: Download current Balance 2 ZPK
         run: |
           curl -fL --retry 3 --retry-delay 2 \
@@ -30,5 +35,9 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add AMG_Petronas_Balance_2.zpk
-          git commit -m 'Publish AMG Petronas Balance 2 ZPK' || true
-          git push origin HEAD:main
+          if git diff --cached --quiet; then
+            echo 'No changes to publish'
+          else
+            git commit -m 'Publish AMG Petronas Balance 2 ZPK'
+            git push origin HEAD:main
+          fi
